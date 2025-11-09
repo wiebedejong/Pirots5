@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="PIROTS 5 - The Ultimate Treasure Hunt - A hyperdynamic, audio-rich slot game">
+    <title>PIROTS 5 - The Ultimate Treasure Hunt</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0A0E27;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        #game-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+        }
+
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0A0E27;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        #loading-logo {
+            font-size: 48px;
+            color: #FFD700;
+            font-weight: bold;
+            margin-bottom: 20px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        #loading-bar {
+            width: 300px;
+            height: 20px;
+            border: 2px solid #5D3FD3;
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(93, 63, 211, 0.1);
+        }
+
+        #loading-progress {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #5D3FD3, #FF006E);
+            transition: width 0.3s ease;
+        }
+
+        #loading-text {
+            margin-top: 15px;
+            color: #FFFFFF;
+            font-size: 14px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+
+        /* Mobile optimization */
+        @media (max-width: 768px) {
+            #loading-logo {
+                font-size: 32px;
+            }
+
+            #loading-bar {
+                width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">
+        <div id="loading-logo">🦜 PIROTS 5 💎</div>
+        <div id="loading-bar">
+            <div id="loading-progress"></div>
+        </div>
+        <div id="loading-text">Preparing adventure...</div>
+    </div>
+    <div id="game-container"></div>
+</body>
+</html>

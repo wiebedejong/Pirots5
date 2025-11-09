@@ -1,0 +1,25 @@
+{
+  "gemPayouts": {
+    "2": 1,
+    "3": 2,
+    "4": 4,
+    "5": 8,
+    "6": 12,
+    "7": 18,
+    "8": 26,
+    "9": 40
+  },
+  "colorMaxPayouts": {
+    "red": 40,
+    "blue": 35,
+    "green": 35,
+    "yellow": 30,
+    "purple": 45,
+    "orange": 50
+  },
+  "bonusMultipliers": {
+    "regular": 1.0,
+    "super": 2.0,
+    "mega": 3.0
+  }
+}

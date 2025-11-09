@@ -1,0 +1,38 @@
+{
+  "featureProbabilities": {
+    "bonusGame": 0.004,
+    "superBonus": 0.00125,
+    "blackHole": 0.02,
+    "alienInvasion": 0.0125,
+    "lostInSpace": 0.0025,
+    "weatherEvent": 0.15,
+    "megaFeature": 0.0067,
+    "megaJackpot": 0.001
+  },
+  "weatherTypes": {
+    "meteorShower": {
+      "duration": 5,
+      "probability": 0.06
+    },
+    "solarStorm": {
+      "duration": 3,
+      "probability": 0.04
+    },
+    "nebulaCloud": {
+      "duration": 4,
+      "probability": 0.03
+    },
+    "cosmicWind": {
+      "duration": 3,
+      "probability": 0.04
+    },
+    "stardustRain": {
+      "duration": 6,
+      "probability": 0.05
+    },
+    "darkMatter": {
+      "duration": 4,
+      "probability": 0.03
+    }
+  }
+}
