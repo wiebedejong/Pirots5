@@ -4,10 +4,11 @@
  */
 
 import Phaser from 'phaser';
-import { COLORS, GAME_CONFIG, BIRD_TYPES } from '../core/constants.js';
+import { COLORS, GAME_CONFIG, BIRD_TYPES, FEATURE_PROBABILITIES } from '../core/constants.js';
 import Grid from '../entities/Grid.js';
 import Bird from '../entities/Bird.js';
 import AudioManager from '../audio/AudioManager.js';
+import BlackHole from '../features/BlackHole.js';
 
 export default class MainGameState extends Phaser.Scene {
     constructor() {
@@ -517,10 +518,60 @@ export default class MainGameState extends Phaser.Scene {
 
     endSpin() {
         console.log('✅ Spin complete');
-        this.gameState = 'idle';
 
-        // Calculate and award wins (placeholder)
-        // this.calculateWins();
+        // Check for random feature triggers (2% chance voor testing - normaal 2%)
+        this.checkFeatureTriggers();
+
+        this.gameState = 'idle';
+    }
+
+    /**
+     * Check if any random features should trigger
+     */
+    checkFeatureTriggers() {
+        // Black Hole (2% chance)
+        if (Math.random() < FEATURE_PROBABILITIES.BLACK_HOLE) {
+            console.log('🎲 BLACK HOLE TRIGGERED!');
+            this.triggerBlackHole();
+            return; // One feature at a time
+        }
+
+        // TODO: Add other features here
+        // - Weather events
+        // - Alien Invasion
+        // - etc.
+    }
+
+    /**
+     * Trigger Black Hole feature
+     */
+    triggerBlackHole() {
+        this.gameState = 'feature';
+
+        // Spawn black hole at center of grid
+        const centerX = GAME_CONFIG.WIDTH / 2;
+        const centerY = GAME_CONFIG.HEIGHT / 2;
+
+        // Determine type (40% mini, 35% standard, 25% mega)
+        let type = 'standard';
+        const roll = Math.random();
+        if (roll < 0.40) type = 'mini';
+        else if (roll < 0.75) type = 'standard';
+        else type = 'mega';
+
+        // Create and activate black hole
+        const blackHole = new BlackHole(this, centerX, centerY);
+        blackHole.spawn(type);
+
+        // Wait a moment before activating
+        this.time.delayedCall(1000, () => {
+            blackHole.activate(this.grid, this.birds);
+        });
+
+        // After black hole is done, return to idle
+        this.time.delayedCall(6000, () => {
+            this.gameState = 'idle';
+        });
     }
 
     updateCombo(time) {
