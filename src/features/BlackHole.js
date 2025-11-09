@@ -461,6 +461,11 @@ export default class BlackHole {
             const bird = birdItem.birdObject;
 
             this.scene.time.delayedCall(i * 300, () => {
+                if (!bird.sprite || !bird.nameText) {
+                    console.warn('⚠️  Bird sprite missing during return');
+                    return;
+                }
+
                 // Random position
                 const randomX = Phaser.Math.Between(0, this.scene.grid.width - 1);
                 const randomY = Phaser.Math.Between(0, this.scene.grid.height - 1);
@@ -471,24 +476,52 @@ export default class BlackHole {
                 const worldPos = this.scene.grid.getCellCenter(randomX, randomY);
                 bird.x = worldPos.x;
                 bird.y = worldPos.y;
+                bird.baseY = worldPos.y; // Update base position for idle animation
 
-                // Reset sprite
+                // Calculate proper scale (same as initial spawn)
+                const targetSize = 80;
+                const properScale = targetSize / Math.max(bird.sprite.width, bird.sprite.height);
+
+                // Reset sprite positions
                 bird.sprite.x = worldPos.x;
                 bird.sprite.y = worldPos.y;
                 bird.nameText.x = worldPos.x;
                 bird.nameText.y = worldPos.y - 50;
 
-                // Respawn animation
+                // Set to 0 scale before animating
+                bird.sprite.setScale(0);
+                bird.nameText.setScale(0);
+
+                // Respawn animation with proper scale
                 this.scene.tweens.add({
-                    targets: [bird.sprite, bird.nameText],
-                    scaleX: bird.sprite.scaleX > 0 ? bird.sprite.scaleX : 0.1,
-                    scaleY: bird.sprite.scaleY > 0 ? bird.sprite.scaleY : 0.1,
+                    targets: bird.sprite,
+                    scaleX: properScale,
+                    scaleY: properScale,
+                    alpha: 1,
+                    duration: 500,
+                    ease: 'Back.easeOut',
+                    onComplete: () => {
+                        // Restart idle animation after respawn
+                        bird.startIdleAnimation();
+                    }
+                });
+
+                this.scene.tweens.add({
+                    targets: bird.nameText,
+                    scaleX: 1,
+                    scaleY: 1,
                     alpha: 1,
                     duration: 500,
                     ease: 'Back.easeOut'
                 });
 
                 bird.state = 'idle';
+
+                // Update grid cell
+                const cell = this.scene.grid.getCell(randomX, randomY);
+                if (cell) {
+                    cell.bird = bird;
+                }
 
                 if (withBonus) {
                     bird.speed *= 1.5;

@@ -19,6 +19,7 @@ export default class Bird {
         // World position
         this.x = 0;
         this.y = 0;
+        this.baseY = 0; // Base Y position for idle animation
 
         // Visual elements
         this.sprite = null;
@@ -59,6 +60,7 @@ export default class Bird {
         const worldPos = grid.getCellCenter(this.gridX, this.gridY);
         this.x = worldPos.x;
         this.y = worldPos.y;
+        this.baseY = worldPos.y; // Store base position for idle animation
 
         // Create sprite
         this.createSprite();
@@ -115,13 +117,34 @@ export default class Bird {
      * Start idle bobbing animation
      */
     startIdleAnimation() {
+        // Stop existing animation first
+        if (this.idleTween) {
+            this.idleTween.stop();
+            this.idleTween = null;
+        }
+
+        if (!this.sprite) return;
+
+        // Use stored base position instead of current sprite position
+        // This prevents drift when animation is restarted after movement
+        const baseY = this.baseY;
+
+        // Reset sprite to base position before starting animation
+        this.sprite.y = baseY;
+
         this.idleTween = this.scene.tweens.add({
             targets: this.sprite,
-            y: this.y - 5,
+            y: baseY - 5,
             duration: 1000,
             yoyo: true,
             repeat: -1,
-            ease: 'Sine.easeInOut'
+            ease: 'Sine.easeInOut',
+            onUpdate: () => {
+                // Keep name text synced with sprite during idle animation
+                if (this.nameText && this.sprite) {
+                    this.nameText.y = this.sprite.y - 50;
+                }
+            }
         });
     }
 
@@ -263,6 +286,13 @@ export default class Bird {
      * Move to grid position
      */
     moveTo(gridX, gridY, onComplete) {
+        // Validate grid position
+        if (gridX < 0 || gridX >= this.grid.width || gridY < 0 || gridY >= this.grid.height) {
+            console.warn(`⚠️  Invalid grid position: (${gridX}, ${gridY})`);
+            if (onComplete) onComplete();
+            return;
+        }
+
         // Update grid
         const oldCell = this.grid.getCell(this.gridX, this.gridY);
         if (oldCell) {
@@ -283,6 +313,7 @@ export default class Bird {
         // Stop idle animation
         if (this.idleTween) {
             this.idleTween.stop();
+            this.idleTween = null;
         }
 
         // Calculate duration based on speed and movement type
@@ -292,6 +323,12 @@ export default class Bird {
         // Animate movement
         this.state = 'moving';
 
+        if (!this.sprite || !this.nameText) {
+            console.error(`⚠️  Bird sprite or nameText missing!`);
+            if (onComplete) onComplete();
+            return;
+        }
+
         this.scene.tweens.add({
             targets: this.sprite,
             x: worldPos.x,
@@ -300,14 +337,15 @@ export default class Bird {
             ease: 'Cubic.easeInOut',
             onUpdate: () => {
                 // Update name text position
-                if (this.nameText) {
+                if (this.nameText && this.sprite) {
                     this.nameText.x = this.sprite.x;
-                    this.nameText.y = this.sprite.y - 35;
+                    this.nameText.y = this.sprite.y - 50;
                 }
             },
             onComplete: () => {
                 this.x = worldPos.x;
                 this.y = worldPos.y;
+                this.baseY = worldPos.y; // Update base position for idle animation
                 this.state = 'idle';
 
                 // Restart idle animation
@@ -325,6 +363,8 @@ export default class Bird {
      * Leave sparkle trail
      */
     leaveTrail() {
+        if (!this.sprite) return;
+
         const particle = this.scene.add.circle(
             this.sprite.x,
             this.sprite.y,
@@ -332,6 +372,7 @@ export default class Bird {
             parseInt(this.type.colorHex.replace('#', '0x')),
             0.6
         );
+        particle.setDepth(99);
 
         this.scene.tweens.add({
             targets: particle,
