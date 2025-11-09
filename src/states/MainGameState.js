@@ -4,10 +4,11 @@
  */
 
 import Phaser from 'phaser';
-import { COLORS, GAME_CONFIG, BIRD_TYPES } from '../core/constants.js';
+import { COLORS, GAME_CONFIG, BIRD_TYPES, FEATURE_PROBABILITIES } from '../core/constants.js';
 import Grid from '../entities/Grid.js';
 import Bird from '../entities/Bird.js';
 import AudioManager from '../audio/AudioManager.js';
+import BlackHole from '../features/BlackHole.js';
 
 export default class MainGameState extends Phaser.Scene {
     constructor() {
@@ -88,40 +89,23 @@ export default class MainGameState extends Phaser.Scene {
     }
 
     createBackground() {
-        // Deep space background
-        const bg = this.add.graphics();
-        bg.fillStyle(parseInt(COLORS.DEEP_SPACE_BLUE.replace('#', '0x')), 1);
-        bg.fillRect(0, 0, GAME_CONFIG.WIDTH, GAME_CONFIG.HEIGHT);
+        // Use real Pirots 4 background
+        const bg = this.add.image(
+            GAME_CONFIG.WIDTH / 2,
+            GAME_CONFIG.HEIGHT / 2,
+            'bg_main'
+        );
 
-        // Add stars
-        this.createStarfield();
+        // Scale to fit screen
+        const scaleX = GAME_CONFIG.WIDTH / bg.width;
+        const scaleY = GAME_CONFIG.HEIGHT / bg.height;
+        const scale = Math.max(scaleX, scaleY);
+        bg.setScale(scale);
 
-        console.log('⭐ Background created');
-    }
+        // Set to background depth
+        bg.setDepth(-100);
 
-    createStarfield() {
-        const graphics = this.add.graphics();
-
-        // Create random stars
-        for (let i = 0; i < 100; i++) {
-            const x = Phaser.Math.Between(0, GAME_CONFIG.WIDTH);
-            const y = Phaser.Math.Between(0, GAME_CONFIG.HEIGHT);
-            const size = Phaser.Math.Between(1, 3);
-            const alpha = Phaser.Math.FloatBetween(0.3, 1.0);
-
-            graphics.fillStyle(0xFFFFFF, alpha);
-            graphics.fillCircle(x, y, size);
-        }
-
-        // Add twinkling animation
-        this.tweens.add({
-            targets: graphics,
-            alpha: 0.5,
-            duration: 2000,
-            yoyo: true,
-            repeat: -1,
-            ease: 'Sine.easeInOut'
-        });
+        console.log('🎨 Real background loaded and scaled');
     }
 
     createGrid() {
@@ -534,10 +518,60 @@ export default class MainGameState extends Phaser.Scene {
 
     endSpin() {
         console.log('✅ Spin complete');
-        this.gameState = 'idle';
 
-        // Calculate and award wins (placeholder)
-        // this.calculateWins();
+        // Check for random feature triggers (2% chance voor testing - normaal 2%)
+        this.checkFeatureTriggers();
+
+        this.gameState = 'idle';
+    }
+
+    /**
+     * Check if any random features should trigger
+     */
+    checkFeatureTriggers() {
+        // Black Hole (2% chance)
+        if (Math.random() < FEATURE_PROBABILITIES.BLACK_HOLE) {
+            console.log('🎲 BLACK HOLE TRIGGERED!');
+            this.triggerBlackHole();
+            return; // One feature at a time
+        }
+
+        // TODO: Add other features here
+        // - Weather events
+        // - Alien Invasion
+        // - etc.
+    }
+
+    /**
+     * Trigger Black Hole feature
+     */
+    triggerBlackHole() {
+        this.gameState = 'feature';
+
+        // Spawn black hole at center of grid
+        const centerX = GAME_CONFIG.WIDTH / 2;
+        const centerY = GAME_CONFIG.HEIGHT / 2;
+
+        // Determine type (40% mini, 35% standard, 25% mega)
+        let type = 'standard';
+        const roll = Math.random();
+        if (roll < 0.40) type = 'mini';
+        else if (roll < 0.75) type = 'standard';
+        else type = 'mega';
+
+        // Create and activate black hole
+        const blackHole = new BlackHole(this, centerX, centerY);
+        blackHole.spawn(type);
+
+        // Wait a moment before activating
+        this.time.delayedCall(1000, () => {
+            blackHole.activate(this.grid, this.birds);
+        });
+
+        // After black hole is done, return to idle
+        this.time.delayedCall(6000, () => {
+            this.gameState = 'idle';
+        });
     }
 
     updateCombo(time) {
