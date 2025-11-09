@@ -49,44 +49,52 @@ export default class Gem {
     }
 
     /**
-     * Create the gem sprite
+     * Create the gem sprite using real Pirots 4 assets
      */
     createSprite() {
-        // For now, create a simple colored circle
-        // Later this will be replaced with actual sprite assets
-        const size = 40 + (this.tier * 2); // Size increases with tier
-        const graphics = this.scene.add.graphics();
+        // Use real gem sprites from Pirots 4
+        // Tier 1-7 use Low symbols, tier 8-9 use High symbols
+        let spriteKey;
 
-        // Main gem circle
-        graphics.fillStyle(parseInt(this.type.colorHex.replace('#', '0x')), 1);
-        graphics.fillCircle(size / 2, size / 2, size / 2);
+        if (this.tier <= 7) {
+            // Use Low symbols (1-7)
+            spriteKey = `gem_${this.type.color}_${this.tier}`;
+        } else if (this.tier === 8) {
+            // Tier 8 - use first high symbol
+            spriteKey = 'gem_high_1';
+        } else {
+            // Tier 9 - use second high symbol
+            spriteKey = 'gem_high_2';
+        }
 
-        // Inner highlight
-        graphics.fillStyle(0xFFFFFF, 0.3);
-        graphics.fillCircle(size / 2 - 5, size / 2 - 5, size / 4);
-
-        // Border
-        graphics.lineStyle(2, 0xFFFFFF, 0.5);
-        graphics.strokeCircle(size / 2, size / 2, size / 2);
-
-        // Generate texture from graphics
-        graphics.generateTexture(`gem_${this.type.color}_${this.tier}`, size, size);
-        graphics.destroy();
-
-        // Create sprite from texture
-        this.sprite = this.scene.add.sprite(this.x, this.y, `gem_${this.type.color}_${this.tier}`);
+        // Create sprite from loaded texture
+        this.sprite = this.scene.add.sprite(this.x, this.y, spriteKey);
         this.sprite.setData('gem', this);
 
-        // Add tier text
-        if (this.tier > 1) {
-            const tierText = this.scene.add.text(this.x, this.y, `T${this.tier}`, {
-                fontFamily: 'Arial',
-                fontSize: '12px',
-                color: '#FFFFFF',
-                fontStyle: 'bold'
-            });
+        // Scale to fit grid cell (gems are ~80x80 in grid)
+        const targetSize = 70;
+        const scale = targetSize / Math.max(this.sprite.width, this.sprite.height);
+        this.sprite.setScale(scale);
+
+        // Set depth so gems appear above grid but below birds
+        this.sprite.setDepth(10);
+
+        // Add tier indicator for higher tiers
+        if (this.tier >= 5) {
+            const tierText = this.scene.add.text(
+                this.x,
+                this.y + 25,
+                `${this.tier}`,
+                {
+                    fontFamily: 'Arial',
+                    fontSize: '14px',
+                    color: '#FFD700',
+                    fontStyle: 'bold'
+                }
+            );
             tierText.setOrigin(0.5);
-            tierText.setStroke('#000000', 2);
+            tierText.setStroke('#000000', 3);
+            tierText.setDepth(11);
 
             this.tierText = tierText;
         }
@@ -160,23 +168,37 @@ export default class Gem {
         if (this.tier >= this.type.maxTier) return;
 
         this.isUpgrading = true;
+        const oldTier = this.tier;
         this.tier++;
 
-        console.log(`⬆️  Gem upgraded to tier ${this.tier}`);
+        console.log(`⬆️  Gem upgraded from tier ${oldTier} to ${this.tier}`);
+
+        // Store current scale
+        const currentScale = this.sprite.scaleX;
 
         // Flash effect
         this.scene.tweens.add({
             targets: this.sprite,
-            scaleX: 1.3,
-            scaleY: 1.3,
+            scaleX: currentScale * 1.3,
+            scaleY: currentScale * 1.3,
             duration: ANIMATION_TIMINGS.GEM_UPGRADE / 2,
             yoyo: true,
             onComplete: () => {
+                // Store position
+                const posX = this.x;
+                const posY = this.y;
+
+                // Destroy old sprite
+                if (this.sprite) {
+                    this.sprite.destroy();
+                }
+                if (this.tierText) {
+                    this.tierText.destroy();
+                    this.tierText = null;
+                }
+
                 // Recreate sprite with new tier
-                this.destroy();
                 this.createSprite();
-                this.sprite.setScale(1);
-                this.sprite.setAlpha(1);
                 this.isUpgrading = false;
 
                 // Restart shimmer

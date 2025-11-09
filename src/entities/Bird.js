@@ -73,51 +73,38 @@ export default class Bird {
     }
 
     /**
-     * Create bird sprite
+     * Create bird sprite using real Pirots 4 assets
      */
     createSprite() {
-        // For now, create a simple bird representation
-        // Later will use actual sprite sheets
+        // Use real bird sprites from Pirots 4
+        const spriteKey = `bird_${this.colorName}`;
 
-        const size = 50;
-        const graphics = this.scene.add.graphics();
-
-        // Bird body (circle)
-        graphics.fillStyle(parseInt(this.type.colorHex.replace('#', '0x')), 1);
-        graphics.fillCircle(size / 2, size / 2, size / 3);
-
-        // Eye
-        graphics.fillStyle(0xFFFFFF, 1);
-        graphics.fillCircle(size / 2 + 8, size / 2 - 5, 6);
-        graphics.fillStyle(0x000000, 1);
-        graphics.fillCircle(size / 2 + 10, size / 2 - 5, 3);
-
-        // Beak
-        graphics.fillStyle(0xFFAA00, 1);
-        graphics.fillTriangle(
-            size / 2 + 15, size / 2,
-            size / 2 + 25, size / 2 - 3,
-            size / 2 + 25, size / 2 + 3
-        );
-
-        // Generate texture
-        graphics.generateTexture(`bird_${this.colorName}`, size, size);
-        graphics.destroy();
-
-        // Create sprite
-        this.sprite = this.scene.add.sprite(this.x, this.y, `bird_${this.colorName}`);
+        // Create sprite from loaded texture
+        this.sprite = this.scene.add.sprite(this.x, this.y, spriteKey);
         this.sprite.setData('bird', this);
-        this.sprite.setDepth(100); // Above gems
+
+        // Scale bird to appropriate size (birds should be ~60-80px)
+        const targetSize = 80;
+        const scale = targetSize / Math.max(this.sprite.width, this.sprite.height);
+        this.sprite.setScale(scale);
+
+        // Set depth so birds appear above gems
+        this.sprite.setDepth(100);
 
         // Add name label
-        this.nameText = this.scene.add.text(this.x, this.y - 35, this.type.name, {
-            fontFamily: 'Arial',
-            fontSize: '12px',
-            color: '#FFFFFF',
-            fontStyle: 'bold'
-        });
+        this.nameText = this.scene.add.text(
+            this.x,
+            this.y - 50,
+            this.type.name,
+            {
+                fontFamily: 'Arial',
+                fontSize: '14px',
+                color: '#FFD700',
+                fontStyle: 'bold'
+            }
+        );
         this.nameText.setOrigin(0.5);
-        this.nameText.setStroke('#000000', 2);
+        this.nameText.setStroke('#000000', 3);
         this.nameText.setDepth(101);
 
         // Idle animation (bobbing)

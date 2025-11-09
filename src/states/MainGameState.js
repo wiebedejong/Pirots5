@@ -88,40 +88,23 @@ export default class MainGameState extends Phaser.Scene {
     }
 
     createBackground() {
-        // Deep space background
-        const bg = this.add.graphics();
-        bg.fillStyle(parseInt(COLORS.DEEP_SPACE_BLUE.replace('#', '0x')), 1);
-        bg.fillRect(0, 0, GAME_CONFIG.WIDTH, GAME_CONFIG.HEIGHT);
+        // Use real Pirots 4 background
+        const bg = this.add.image(
+            GAME_CONFIG.WIDTH / 2,
+            GAME_CONFIG.HEIGHT / 2,
+            'bg_main'
+        );
 
-        // Add stars
-        this.createStarfield();
+        // Scale to fit screen
+        const scaleX = GAME_CONFIG.WIDTH / bg.width;
+        const scaleY = GAME_CONFIG.HEIGHT / bg.height;
+        const scale = Math.max(scaleX, scaleY);
+        bg.setScale(scale);
 
-        console.log('⭐ Background created');
-    }
+        // Set to background depth
+        bg.setDepth(-100);
 
-    createStarfield() {
-        const graphics = this.add.graphics();
-
-        // Create random stars
-        for (let i = 0; i < 100; i++) {
-            const x = Phaser.Math.Between(0, GAME_CONFIG.WIDTH);
-            const y = Phaser.Math.Between(0, GAME_CONFIG.HEIGHT);
-            const size = Phaser.Math.Between(1, 3);
-            const alpha = Phaser.Math.FloatBetween(0.3, 1.0);
-
-            graphics.fillStyle(0xFFFFFF, alpha);
-            graphics.fillCircle(x, y, size);
-        }
-
-        // Add twinkling animation
-        this.tweens.add({
-            targets: graphics,
-            alpha: 0.5,
-            duration: 2000,
-            yoyo: true,
-            repeat: -1,
-            ease: 'Sine.easeInOut'
-        });
+        console.log('🎨 Real background loaded and scaled');
     }
 
     createGrid() {

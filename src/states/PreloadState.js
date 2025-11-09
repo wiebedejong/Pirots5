@@ -130,29 +130,83 @@ export default class PreloadState extends Phaser.Scene {
         // Set base path for assets
         this.load.setPath('assets/');
 
+        console.log('🎨 Loading REAL Pirots 4 assets...');
+
         // ========================================
-        // PLACEHOLDER ASSETS
-        // These will be replaced with actual assets later
+        // BACKGROUNDS
         // ========================================
+        this.load.image('bg_main', 'sprites/bg_main.jpg');
+        this.load.image('bg_bonus', 'sprites/bg_bonus.jpg');
 
-        // For now, we'll create placeholder graphics in code
-        // Real assets from Pirots 4 pack will be loaded later
+        // ========================================
+        // BIRD SPRITES
+        // ========================================
+        this.load.image('bird_red', 'sprites/Red_Bird.png');
+        this.load.image('bird_blue', 'sprites/Blue_Bird.png');
+        this.load.image('bird_green', 'sprites/Green_Bird.png');
+        this.load.image('bird_purple', 'sprites/Purple_Bird.png');
+        // Yellow bird will use green as placeholder (or create custom)
+        this.load.image('bird_yellow', 'sprites/Green_Bird.png'); // Placeholder
 
-        console.log('⚠️  Loading placeholder assets (real assets will be added later)');
+        // ========================================
+        // GEM SYMBOLS (Low tier with 7 levels)
+        // ========================================
+        // Red gems (Low1)
+        for (let i = 1; i <= 7; i++) {
+            this.load.image(`gem_red_${i}`, `sprites/Low1_${i}.png`);
+        }
 
-        // Load fonts (if any custom fonts)
-        // this.load.font('pirots-font', 'fonts/pirots.ttf');
+        // Blue gems (Low2)
+        for (let i = 1; i <= 7; i++) {
+            this.load.image(`gem_blue_${i}`, `sprites/Low2_${i}.png`);
+        }
 
-        // Placeholder sprites will be created programmatically
-        // this.createPlaceholderAssets();
+        // Green gems (Low3)
+        for (let i = 1; i <= 7; i++) {
+            this.load.image(`gem_green_${i}`, `sprites/Low3_${i}.png`);
+        }
 
-        // When ready, we'll load actual assets like:
-        // this.load.image('bg_main', 'sprites/background_main.png');
-        // this.load.spritesheet('bird_red', 'sprites/bird_red.png', { frameWidth: 64, frameHeight: 64 });
+        // Yellow gems (Low4)
+        for (let i = 1; i <= 7; i++) {
+            this.load.image(`gem_yellow_${i}`, `sprites/Low4_${i}.png`);
+        }
+
+        // High tier gems (will use for tiers 8-9)
+        this.load.image('gem_high_1', 'sprites/High1.png');
+        this.load.image('gem_high_2', 'sprites/High2.png');
+        this.load.image('gem_high_3', 'sprites/High3.png');
+        this.load.image('gem_high_4', 'sprites/High4.png');
+
+        // Purple gems (use High1 for now)
+        for (let i = 1; i <= 7; i++) {
+            this.load.image(`gem_purple_${i}`, 'sprites/High1.png');
+        }
+
+        // Orange gems (use High2 for now)
+        for (let i = 1; i <= 7; i++) {
+            this.load.image(`gem_orange_${i}`, 'sprites/High2.png');
+        }
+
+        // ========================================
+        // FEATURE SYMBOLS
+        // ========================================
+        this.load.image('symbol_bonus', 'sprites/Bonus.png');
+        this.load.image('symbol_super_bonus', 'sprites/SuperBonus.png');
+        this.load.image('symbol_wild', 'sprites/Wild.png');
+        this.load.image('symbol_transform', 'sprites/Transform.png');
+        this.load.image('symbol_levelup', 'sprites/LevelUp.png');
+        this.load.image('symbol_black_hole', 'sprites/BlackHole.png');
+        this.load.image('symbol_bandit', 'sprites/Bandit.png');
+        this.load.image('symbol_multiplier', 'sprites/Multiplier.png');
+        this.load.image('symbol_invasion', 'sprites/InvasionTrigger.png');
+
+        // ========================================
+        // SOUND EFFECTS (Placeholder - will add later)
+        // ========================================
         // this.load.audio('music_main', 'music/main_theme.mp3');
+        // this.load.audio('collect', 'sounds/collect.mp3');
 
-        // For now, just simulate loading with a small delay
-        // This prevents immediate completion
+        console.log('✅ All asset loading configured');
     }
 
     createPlaceholderAssets() {
