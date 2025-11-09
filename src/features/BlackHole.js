@@ -476,6 +476,7 @@ export default class BlackHole {
                 const worldPos = this.scene.grid.getCellCenter(randomX, randomY);
                 bird.x = worldPos.x;
                 bird.y = worldPos.y;
+                bird.baseY = worldPos.y; // Update base position for idle animation
 
                 // Calculate proper scale (same as initial spawn)
                 const targetSize = 80;

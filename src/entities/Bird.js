@@ -19,6 +19,7 @@ export default class Bird {
         // World position
         this.x = 0;
         this.y = 0;
+        this.baseY = 0; // Base Y position for idle animation
 
         // Visual elements
         this.sprite = null;
@@ -59,6 +60,7 @@ export default class Bird {
         const worldPos = grid.getCellCenter(this.gridX, this.gridY);
         this.x = worldPos.x;
         this.y = worldPos.y;
+        this.baseY = worldPos.y; // Store base position for idle animation
 
         // Create sprite
         this.createSprite();
@@ -123,7 +125,12 @@ export default class Bird {
 
         if (!this.sprite) return;
 
-        const baseY = this.sprite.y;
+        // Use stored base position instead of current sprite position
+        // This prevents drift when animation is restarted after movement
+        const baseY = this.baseY;
+
+        // Reset sprite to base position before starting animation
+        this.sprite.y = baseY;
 
         this.idleTween = this.scene.tweens.add({
             targets: this.sprite,
@@ -131,7 +138,13 @@ export default class Bird {
             duration: 1000,
             yoyo: true,
             repeat: -1,
-            ease: 'Sine.easeInOut'
+            ease: 'Sine.easeInOut',
+            onUpdate: () => {
+                // Keep name text synced with sprite during idle animation
+                if (this.nameText && this.sprite) {
+                    this.nameText.y = this.sprite.y - 50;
+                }
+            }
         });
     }
 
@@ -332,6 +345,7 @@ export default class Bird {
             onComplete: () => {
                 this.x = worldPos.x;
                 this.y = worldPos.y;
+                this.baseY = worldPos.y; // Update base position for idle animation
                 this.state = 'idle';
 
                 // Restart idle animation
